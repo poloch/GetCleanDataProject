@@ -57,12 +57,13 @@ write.table(df,file="motion_data.csv", append=T, col.names=F, sep=",", row.names
 remove(df)
 
 ###
-# final 
+# final calculation, mean per (subject, activity)
 ###
 
 library(data.table)
+library(reshape2)
 
 records <- fread("motion_data.csv")
-melted <- melt(records,id=c("activity","subject"))
-means <- dcast(melted, activity+subject ~ variable)
-write.csv(means,file="motion_measures_means.csv")
+melted <- melt(records,id=c("subject","activity"))
+means <- dcast(melted, activity+subject ~ variable, mean)
+write.csv(means,file="motion_measures_means.csv",row.names=F)
