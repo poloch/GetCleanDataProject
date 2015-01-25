@@ -24,7 +24,7 @@ featureToLoad <- features[colToLoad,]
 actLabeling <- read.table("UCI HAR Dataset//activity_labels.txt", sep=" ", header=F, col.name=c("act_id","label"))
 
 ###
-# read the data
+# read the data and output to file "motion_data.csv"
 ###
 
 selectDims <- paste("cast(substr(V1,",16*(featureToLoad$id-1)+1,",",16*featureToLoad$id,") as double) `",featureToLoad$name,"`", sep="")
@@ -54,4 +54,15 @@ df <- load_motion_data("UCI HAR Dataset/test/X_test.txt",
                        "UCI HAR Dataset/test/subject_test.txt")
 write.table(df,file="motion_data.csv", append=T, col.names=F, sep=",", row.names=F)
 
+remove(df)
 
+###
+# final 
+###
+
+library(data.table)
+
+records <- fread("motion_data.csv")
+melted <- melt(records,id=c("activity","subject"))
+means <- dcast(melted, activity+subject ~ variable)
+write.csv(means,file="motion_measures_means.csv")
