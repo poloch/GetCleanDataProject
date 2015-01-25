@@ -1,3 +1,4 @@
+library(sqldf)
 
 ###
 # select features to read
@@ -25,13 +26,22 @@ actLabeling <- read.table("UCI HAR Dataset//activity_labels.txt", sep=" ", heade
 ###
 # read the data
 ###
-colClasses <- ifelse(colToLoad,"numeric","NULL")
-colLabels <- features$name[which(colToLoad)]
 
-train_X = read.fwf("UCI HAR Dataset/train/X_train_extract100.txt",
-#trainX = read.fwf("UCI HAR Dataset/train/X_train.txt", 
-                  rep(16,562), 
-                  colClasses=colClasses, 
-                  col.names=c("id",features$name),
-                  header=FALSE)
+selectDims <- paste("cast(substr(V1,",16*(featureToLoad$id-1)+1,",",16*featureToLoad$id,") as double) `",featureToLoad$name,"`", sep="")
+selectStr <- paste ("select ",
+                    paste(selectDims, collapse=", "), 
+                    "from file",
+                    collapse = " ")
+df <- read.csv.sql("UCI HAR Dataset/train/X_train.txt", sql=selectStr, header=F)
+df_Y <- read.csv("UCI HAR Dataset//train/y_train.txt", header=F, col.name="activity")
+df_Y <- merge(df_Y, actLabeling, by.x="activity", by.y="act_id")
+df$activity <- df_Y$label
 
+write.csv(df,file="motion_data.csv", row.names=F)
+
+df <- read.csv.sql("UCI HAR Dataset/test/X_test.txt", sql=selectStr, header=F)
+df_Y <- read.csv("UCI HAR Dataset//test/y_test.txt", header=F, col.name="activity")
+df_Y <- merge(df_Y, actLabeling, by.x="activity", by.y="act_id")
+df$activity <- df_Y$label
+
+write.table(df,file="motion_data.csv", append=T, col.names=F, sep=",", row.names=F)
