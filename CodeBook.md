@@ -6,6 +6,7 @@ Generated from the train and test data from [UCI HAR Dataset](https://d396qusza4
 - `features.txt` to selet the columns (features) to extract from train and test observed data.
 - `train/X_train.txt` and `test/X_test.txt` the train, resp test observed data (signals from the motion sensors)
 - `train/y_train.txt` and `test/y_test.txt` the train, resp test activity associated to the observations
+- `train/subject_train.txt` and `test/subject_test.txt` the id of the volunteer that was observed
 - `activity_labels.txt` labels for the activity index found in previous files.
 
 # Generation process
@@ -17,11 +18,12 @@ The cleaned dataset **motion_data.csv** is obtained by the following steps:
 2. join with labelled activities
 .* join (cbind, ie. join on line numbers) the observation table with the activity table
 .* join (merge on activity id) with the `activity_labels.txt` table
-3. idem with test data, that is happened to the same output table
+3. join with subject table (cbind, ie. join on line numbers)
+4. idem with test data, that is happened to the same output table
 
 # Output dimensions
 
-All dimensions are double except, ''activity'' which is a string.
+All dimensions are double except ''activity'' which is a string, and "subject" that is an integer.
 
 1. tBodyAcc-mean()-X
 1. tBodyAcc-mean()-Y
@@ -90,3 +92,4 @@ All dimensions are double except, ''activity'' which is a string.
 1. fBodyBodyGyroJerkMag-mean()
 1. fBodyBodyGyroJerkMag-std()
 1. activity
+1. subject

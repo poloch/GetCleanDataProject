@@ -32,16 +32,26 @@ selectStr <- paste ("select ",
                     paste(selectDims, collapse=", "), 
                     "from file",
                     collapse = " ")
-df <- read.csv.sql("UCI HAR Dataset/train/X_train.txt", sql=selectStr, header=F)
-df_Y <- read.csv("UCI HAR Dataset//train/y_train.txt", header=F, col.name="activity")
-df_Y <- merge(df_Y, actLabeling, by.x="activity", by.y="act_id")
-df$activity <- df_Y$label
 
+load_motion_data = function(observation_file, action_file, subject_file) {
+  df <- read.csv.sql(observation_file, sql=selectStr, header=F)
+  df_Y <- read.csv(action_file, header=F, col.name="activity")
+  df_Y <- merge(df_Y, actLabeling, by.x="activity", by.y="act_id")
+  df$activity <- df_Y$label
+  subject <- read.table(subject_file, header=F, col.name="id")
+  df$subject <- subject$id    
+  df
+}
+  
+  
+df <- load_motion_data("UCI HAR Dataset/train/X_train.txt", 
+                       "UCI HAR Dataset/train/y_train.txt",
+                       "UCI HAR Dataset//train/subject_train.txt")
 write.csv(df,file="motion_data.csv", row.names=F)
 
-df <- read.csv.sql("UCI HAR Dataset/test/X_test.txt", sql=selectStr, header=F)
-df_Y <- read.csv("UCI HAR Dataset//test/y_test.txt", header=F, col.name="activity")
-df_Y <- merge(df_Y, actLabeling, by.x="activity", by.y="act_id")
-df$activity <- df_Y$label
-
+df <- load_motion_data("UCI HAR Dataset/test/X_test.txt", 
+                       "UCI HAR Dataset/test/y_test.txt",
+                       "UCI HAR Dataset/test/subject_test.txt")
 write.table(df,file="motion_data.csv", append=T, col.names=F, sep=",", row.names=F)
+
+
